@@ -1,0 +1,97 @@
+<%- include('../partials/head',{ pageTitle:"Signup", cssFile:"signup"}) %>
+
+<body>
+
+<%- include('../partials/nav') %>
+
+<div class="container">
+
+  <div class="signup-box">
+
+    <h2>Create Account</h2>
+
+    <% if(errorMessages){ %>
+      <div class="error-box">
+        <p><%= errorMessages %></p>
+      </div>
+    <% } %>
+
+    <form action="/signup" method="POST">
+
+      <!-- First + Last Name -->
+
+      <div class="name-row">
+
+        <div class="input-group">
+          <label>First Name</label>
+          <input type="text" name="firstName" required>
+        </div>
+      
+        <div class="input-group">
+          <label>Last Name</label>
+          <input type="text" name="lastName" required>
+        </div>
+      
+      </div>
+
+      <!-- Email -->
+
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" name="email" required>
+      </div>
+
+      <!-- Password -->
+
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" name="password" required>
+      </div>
+
+      <!-- Confirm Password -->
+
+      <div class="input-group">
+        <label>Confirm Password</label>
+        <input type="password" name="confirmPassword" required>
+      </div>
+
+      <!-- User Type -->
+
+      <div class="input-group">
+        <label>User Type</label>
+
+        <div class="radio-group">
+
+          <label>
+            <input type="radio" name="userType" value="student" required>
+            Student
+          </label>
+
+          <label>
+            <input type="radio" name="userType" value="admin">
+            Admin
+          </label>
+
+          <label>
+            <input type="radio" name="userType" value="owner">
+            Owner
+          </label>
+
+        </div>
+
+      </div>
+
+      <button type="submit">Sign Up</button>
+
+    </form>
+
+    <p class="login-link">
+      Already have an account?
+      <a href="/login">Login</a>
+    </p>
+
+  </div>
+
+</div>
+
+</body>
