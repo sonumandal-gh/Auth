@@ -71,7 +71,13 @@ exports.postSignUp = async (req ,res) => {
         cssFile:"signUp",
         isLoggedIn:false,
         errorMessages:[{msg:"Email already exists"}],
-        oldInput:{fullName,email,password,role},
+        oldInput:{
+          firstName,
+          lastName,
+          email,
+          password,
+          role
+        },
         user: {}
       });
     }

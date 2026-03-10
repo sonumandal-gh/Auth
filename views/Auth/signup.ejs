@@ -10,9 +10,9 @@
 
     <h2>Create Account</h2>
 
-    <% if(errorMessages){ %>
+    <% if(errorMessages && errorMessages.length > 0){ %>
       <div class="error-box">
-        <p><%= errorMessages %></p>
+        <p><%= errorMessages[0].msg %></p>
       </div>
     <% } %>
 
@@ -24,12 +24,20 @@
 
         <div class="input-group">
           <label>First Name</label>
-          <input type="text" name="firstName" required>
+          <input 
+            type="text" 
+            name="firstName" 
+            value="<%= oldInput.firstName || '' %>" 
+            required>
         </div>
       
         <div class="input-group">
           <label>Last Name</label>
-          <input type="text" name="lastName" required>
+          <input 
+            type="text" 
+            name="lastName" 
+            value="<%= oldInput.lastName || '' %>" 
+            required>
         </div>
       
       </div>
@@ -38,7 +46,11 @@
 
       <div class="input-group">
         <label>Email</label>
-        <input type="email" name="email" required>
+        <input 
+          type="email" 
+          name="email" 
+          value="<%= oldInput.email || '' %>" 
+          required>
       </div>
 
       <!-- Password -->
@@ -63,17 +75,32 @@
         <div class="radio-group">
 
           <label>
-            <input type="radio" name="userType" value="student" required>
+            <input 
+              type="radio" 
+              name="role" 
+              value="student"
+              <%= !oldInput.role || oldInput.role === "student" ? "checked" : "" %>
+            >
             Student
           </label>
 
           <label>
-            <input type="radio" name="userType" value="admin">
+            <input 
+              type="radio" 
+              name="role" 
+              value="admin"
+              <%= oldInput.role === "admin" ? "checked" : "" %>
+            >
             Admin
           </label>
 
           <label>
-            <input type="radio" name="userType" value="owner">
+            <input 
+              type="radio" 
+              name="role" 
+              value="owner"
+              <%= oldInput.role === "owner" ? "checked" : "" %>
+            >
             Owner
           </label>
 
