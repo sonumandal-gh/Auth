@@ -123,12 +123,12 @@ exports.postLogin = async (req, res) => {
   const isMatch = await bcrypt.compare(password , user.password);
 
   if(!isMatch){
-    return res.render("Auth/login", {
-      pageTitle: "Login Page",
-      cssFile: "login",
-      isLoggedIn: false,
-      errorMessage: "Incorrect password",
-      oldInput: { email }
+    return res.render("Auth/login",{
+      pageTitle:"Login Page",
+      cssFile:"login",
+      isLoggedIn:false,
+      errorMessage:"User does not exist",
+      oldInput:{ email }
     });
   }
 
