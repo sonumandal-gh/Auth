@@ -6,7 +6,7 @@
   box-sizing:border-box;
 }
 
-/* Navbar */
+/* navbar */
 
 .navbar{
   position:fixed;
@@ -34,7 +34,7 @@
   font-weight:bold;
 }
 
-/* Nav links */
+/* nav links */
 
 .nav-links{
   list-style:none;

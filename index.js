@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const mongoConnect = require("./database/database");
@@ -26,10 +27,10 @@ app.use(express.static(path.join(__dirname, "public")));
 // Routes
 app.use(AuthRouter);
 
-// Connect MongoDB
-mongoConnect()
-  .then(() => {
-    console.log("MongoDB Connected");
-    app.listen(3100, () => console.log("Server running on port 3100"));
-  })
-  .catch(err => console.log(err));
+const PORT = process.env.PORT || 3100;
+
+mongoConnect().then(() => {
+  app.listen(PORT, () => {
+    console.log("Server running on port " + PORT);
+  });
+});
