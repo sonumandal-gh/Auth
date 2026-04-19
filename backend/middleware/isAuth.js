@@ -10,7 +10,11 @@ module.exports = (req, res, next) => {
   try {
     decodedToken = jwt.verify(token, process.env.JWT_SECRET || 'supersecret');
   } catch (err) {
-    return res.status(500).json({ message: 'Token verification failed.' });
+    console.error('JWT Verification Error:', err.message);
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expired. Please login again.' });
+    }
+    return res.status(401).json({ message: 'Invalid token. Token verification failed.' });
   }
   if (!decodedToken) {
     return res.status(401).json({ message: 'Not authenticated.' });

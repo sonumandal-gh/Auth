@@ -17,7 +17,15 @@ export default function Home({ token }) {
           });
           setUsers(response.data.users);
         } catch (err) {
-          setError(err.response?.data?.message || 'Error fetching users');
+          const message = err.response?.data?.message || 'Error fetching users';
+          setError(message);
+          
+          // If token is invalid or expired (401), log out the user
+          if (err.response?.status === 401) {
+            setTimeout(() => {
+              onLogout();
+            }, 2000); // Wait 2 seconds so user can see the error message
+          }
         } finally {
           setLoading(false);
         }

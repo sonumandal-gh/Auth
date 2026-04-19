@@ -32,7 +32,7 @@ function App() {
     <BrowserRouter>
       <Navbar token={token} onLogout={handleLogout} userName={userName} />
       <Routes>
-        <Route path="/" element={<Home token={token} />} />
+        <Route path="/" element={<Home token={token} onLogout={handleLogout} />} />
         <Route path="/login" element={!token ? <Login onLogin={handleLogin} /> : <Navigate to="/" />} />
         <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/" />} />
       </Routes>
