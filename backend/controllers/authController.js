@@ -1,5 +1,5 @@
 const { validationResult } = require("express-validator");
-const User = require("../models/user"); 
+const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -13,12 +13,12 @@ exports.getUsers = async (req, res, next) => {
   }
 };
 
-exports.postSignUp = async (req ,res) => {
-  const {firstName , lastName, email, password, role} = req.body;
+exports.postSignUp = async (req, res) => {
+  const { firstName, lastName, email, password, role } = req.body;
 
   const error = validationResult(req);
 
-  if(!error.isEmpty()){
+  if (!error.isEmpty()) {
     return res.status(422).json({
       message: "Validation failed, entered data is incorrect.",
       errors: error.array()
@@ -26,13 +26,13 @@ exports.postSignUp = async (req ,res) => {
   }
 
   try {
-    const existinguser = await User.findOne({email});
+    const existinguser = await User.findOne({ email });
 
     if (existinguser) {
       return res.status(422).json({ message: "User exists already, please pick a different email." });
     }
 
-    const hashedPassword = await bcrypt.hash(password,12);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = new User({
       firstName,
@@ -45,25 +45,25 @@ exports.postSignUp = async (req ,res) => {
     await user.save();
 
     res.status(201).json({ message: "User created successfully!", userId: user._id });
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(500).json({ message: "User creation failed." });
   }
 };
 
 exports.postLogin = async (req, res) => {
-  const { email , password } = req.body;
+  const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
 
-    if(!user){
+    if (!user) {
       return res.status(401).json({ message: "A user with this email could not be found." });
     }
 
-    const isMatch = await bcrypt.compare(password , user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
 
-    if(!isMatch){
+    if (!isMatch) {
       return res.status(401).json({ message: "Wrong password!" });
     }
 
@@ -74,7 +74,7 @@ exports.postLogin = async (req, res) => {
     );
 
     res.status(200).json({ token: token, userId: user._id.toString(), firstName: user.firstName });
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Login failed." });
   }
@@ -83,4 +83,4 @@ exports.postLogin = async (req, res) => {
 exports.postLogout = (req, res) => {
   // Since we are using JWT, the frontend just needs to delete the token.
   res.status(200).json({ message: "Logged out successfully." });
-};
+};

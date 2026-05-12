@@ -29,7 +29,7 @@ export default function Signup() {
     }
 
     try {
-      await axios.post('http://localhost:3100/api/auth/signup', formData);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/signup`, formData);
       navigate('/login');
     } catch (err) {
       if (err.response && err.response.data.errors) {

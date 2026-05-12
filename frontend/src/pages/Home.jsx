@@ -12,7 +12,7 @@ export default function Home({ token }) {
       const fetchUsers = async () => {
         setLoading(true);
         try {
-          const response = await axios.get('http://localhost:3100/api/auth/users', {
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/users`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setUsers(response.data.users);
