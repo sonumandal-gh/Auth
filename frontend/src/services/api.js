@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create centralized Axios instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3100',
+  baseURL: import.meta.env.VITE_API_URL || 'https://auth-ad32.onrender.com',
   headers: {
     'Content-Type': 'application/json'
   }
