@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../context/useAuth';
+import { UserPlus } from 'lucide-react';
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,9 @@ export default function Signup() {
     role: 'student'
   });
   const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -22,23 +26,28 @@ export default function Signup() {
     e.preventDefault();
     setError(null);
 
-    // Basic frontend validation
+    // Basic frontend password match check
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
+    setSubmitting(true);
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/signup`, formData);
-      navigate('/login');
+      // Calls register in AuthContext -> POST /api/auth/register
+      await register(formData);
+      // Auto-logged in with token & user returned
+      navigate('/');
     } catch (err) {
-      if (err.response && err.response.data.errors) {
+      if (err.response?.data?.errors && err.response.data.errors.length > 0) {
         setError(err.response.data.errors[0].msg);
-      } else if (err.response && err.response.data.message) {
+      } else if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else {
-        setError("An error occurred during sign up.");
+        setError("An error occurred during registration. Please try again.");
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -62,6 +71,7 @@ export default function Signup() {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
+                placeholder="John"
                 required 
               />
             </div>
@@ -73,6 +83,7 @@ export default function Signup() {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
+                placeholder="Doe"
                 required 
               />
             </div>
@@ -85,6 +96,7 @@ export default function Signup() {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              placeholder="john.doe@example.com"
               required 
             />
           </div>
@@ -96,8 +108,12 @@ export default function Signup() {
               name="password"
               value={formData.password}
               onChange={handleChange}
+              placeholder="••••••••"
               required 
             />
+            <small style={{ display: 'block', color: 'var(--text-secondary)', marginTop: '0.35rem', fontSize: '0.78rem' }}>
+              Min 6 characters (1 uppercase, 1 number, 1 special character: !@#$%^&*)
+            </small>
           </div>
 
           <div className="input-group">
@@ -107,12 +123,13 @@ export default function Signup() {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
+              placeholder="••••••••"
               required 
             />
           </div>
 
           <div className="input-group">
-            <label>User Role</label>
+            <label>Account Role</label>
             <div className="radio-group">
               <label>
                 <input 
@@ -147,7 +164,9 @@ export default function Signup() {
             </div>
           </div>
 
-          <button type="submit" className="btn">Sign Up</button>
+          <button type="submit" className="btn" disabled={submitting} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+            <UserPlus size={18} /> {submitting ? 'Registering...' : 'Sign Up'}
+          </button>
         </form>
 
         <p className="auth-link">

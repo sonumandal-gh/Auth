@@ -1,49 +1,54 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Users, AlertCircle } from 'lucide-react';
+import api from '../services/api';
+import { useAuth } from '../context/useAuth';
+import { AlertCircle, Shield, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-export default function Home({ token }) {
+export default function Home() {
+  const { isAuthenticated, user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (token) {
+    if (isAuthenticated) {
       const fetchUsers = async () => {
         setLoading(true);
+        setError(null);
         try {
-          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/users`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          // Axios interceptor automatically attaches Authorization: Bearer <token>
+          const response = await api.get('/api/auth/users');
           setUsers(response.data.users);
         } catch (err) {
           const message = err.response?.data?.message || 'Error fetching users';
           setError(message);
-          
-          // If token is invalid or expired (401), log out the user
-          if (err.response?.status === 401) {
-            setTimeout(() => {
-              onLogout();
-            }, 2000); // Wait 2 seconds so user can see the error message
-          }
         } finally {
           setLoading(false);
         }
       };
-      
+
       fetchUsers();
     }
-  }, [token]);
+  }, [isAuthenticated]);
 
-  if (!token) {
+  if (!isAuthenticated) {
     return (
-      <div className="home-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+      <div className="home-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '65vh', textAlign: 'center' }}>
         <h1 style={{ fontSize: '3rem', marginBottom: '1rem', background: 'linear-gradient(to right, #3b82f6, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          Welcome to Authentication System
+          Production JWT Authentication
         </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', textAlign: 'center', maxWidth: '600px' }}>
-          Please login or register to view the directory of all registered users in the system. Our platform ensures secure access with JSON Web Tokens.
+        <p style={{ color: 'var(--text-secondary)', fontSize: '1.15rem', maxWidth: '620px', lineHeight: '1.7', marginBottom: '2rem' }}>
+          A complete stateless authentication flow featuring <strong>AuthContext</strong>, automated <strong>Axios Bearer interceptors</strong>, and <strong>Role-Based Access Control</strong> (Student, Admin, Owner).
         </p>
+
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <Link to="/login" className="btn" style={{ padding: '0.75rem 2rem', textDecoration: 'none' }}>
+            Sign In
+          </Link>
+          <Link to="/signup" className="nav-btn primary" style={{ padding: '0.75rem 2rem', textDecoration: 'none', borderRadius: '0.5rem' }}>
+            Register Now
+          </Link>
+        </div>
       </div>
     );
   }
@@ -52,7 +57,14 @@ export default function Home({ token }) {
     <div className="home-container">
       <div className="home-header">
         <h1>User Directory</h1>
-        <p>A complete list of registered users in the system</p>
+        <p>Protected endpoint (<code style={{ color: '#60a5fa' }}>/api/auth/users</code>) accessed using auto-attached JWT Bearer token</p>
+        {(currentUser?.role === 'admin' || currentUser?.role === 'owner') && (
+          <div style={{ marginTop: '1rem' }}>
+            <Link to="/admin" className="nav-btn primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+              <Shield size={16} /> Open Admin Panel
+            </Link>
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -63,25 +75,35 @@ export default function Home({ token }) {
           {error}
         </div>
       ) : users.length === 0 ? (
-        <div className="alert-info">No users found.</div>
+        <div className="alert-info">No users found in database.</div>
       ) : (
         <div className="users-grid">
-          {users.map(user => (
-            <div key={user._id} className="user-card">
-              <div className="user-card-header">
-                <div className="user-avatar">
-                  {user.firstName ? user.firstName.charAt(0).toUpperCase() : 'U'}
+          {users.map((u) => {
+            const isSelf = currentUser?._id === u._id;
+            return (
+              <div key={u._id} className="user-card" style={isSelf ? { borderColor: 'var(--primary-color)', boxShadow: '0 0 15px rgba(59, 130, 246, 0.2)' } : {}}>
+                <div className="user-card-header">
+                  <div className="user-avatar">
+                    {u.firstName ? u.firstName.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <div className="user-info">
+                    <h3>
+                      {u.firstName} {u.lastName} {isSelf && <span style={{ fontSize: '0.75rem', color: '#60a5fa', fontWeight: 500 }}>(You)</span>}
+                    </h3>
+                    <span className={`role-badge role-${u.role || 'student'}`}>
+                      {u.role || 'student'}
+                    </span>
+                  </div>
                 </div>
-                <div className="user-info">
-                  <h3>{user.firstName} {user.lastName}</h3>
-                  <span className="user-role">{user.role || 'student'}</span>
+                <div className="user-card-body">
+                  <p>
+                    <User size={15} style={{ verticalAlign: 'middle', color: 'var(--text-secondary)' }} />
+                    <strong>Email:</strong> {u.email}
+                  </p>
                 </div>
               </div>
-              <div className="user-card-body">
-                <p><strong>Email:</strong> {user.email}</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

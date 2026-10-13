@@ -1,43 +1,58 @@
-import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import AdminDashboard from './pages/AdminDashboard';
+import Unauthorized from './pages/Unauthorized';
 
-function App() {
-  const [token, setToken] = useState(localStorage.getItem('token'))
-  const [userId, setUserId] = useState(localStorage.getItem('userId'))
-  const [userName, setUserName] = useState(localStorage.getItem('userName'))
-
-  const handleLogin = (token, userId, userName) => {
-    localStorage.setItem('token', token)
-    localStorage.setItem('userId', userId)
-    localStorage.setItem('userName', userName)
-    setToken(token)
-    setUserId(userId)
-    setUserName(userName)
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('userId')
-    localStorage.removeItem('userName')
-    setToken(null)
-    setUserId(null)
-    setUserName(null)
-  }
-
+export default function App() {
   return (
     <BrowserRouter>
-      <Navbar token={token} onLogout={handleLogout} userName={userName} />
-      <Routes>
-        <Route path="/" element={<Home token={token} onLogout={handleLogout} />} />
-        <Route path="/login" element={!token ? <Login onLogin={handleLogin} /> : <Navigate to="/" />} />
-        <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/" />} />
-      </Routes>
-    </BrowserRouter>
-  )
-}
+      <AuthProvider>
+        <Navbar />
+        <Routes>
+          {/* Home / Directory route */}
+          <Route path="/" element={<Home />} />
 
-export default App
+          {/* Public auth routes (restricted if logged in) */}
+          <Route 
+            path="/login" 
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/signup" 
+            element={
+              <PublicRoute>
+                <Signup />
+              </PublicRoute>
+            } 
+          />
+
+          {/* Client-Side Role-Protected Route */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'owner']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* 403 Forbidden Access Denied page */}
+          <Route path="/unauthorized" element={<Unauthorized />} />
+
+          {/* Catch-all fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
